@@ -1,5 +1,11 @@
 # @backstage/plugin-catalog-backend-module-msgraph
 
+## 0.4.1-next.0
+
+### Patch Changes
+
+- b1995df9f3: Adjust references in deprecation warnings to point to stable URL/document.
+
 ## 0.4.0
 
 ### Minor Changes
