@@ -114,6 +114,7 @@ export class LunrSearchEngine implements SearchEngine {
 
             // Require that the given field has the given value
             if (['string', 'number', 'boolean'].includes(typeof value)) {
+              // TODO
               q.term(lunr.tokenizer(value?.toString()), {
                 presence: lunr.Query.presence.REQUIRED,
                 fields: [field],

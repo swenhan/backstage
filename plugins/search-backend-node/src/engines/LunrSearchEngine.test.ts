@@ -75,6 +75,75 @@ const getActualIndexer = (engine: SearchEngine, index: string) => {
   return engine.getIndexer(index);
 };
 
+describe('stopword-testing', () => {
+  let testLunrSearchEngine: SearchEngine;
+
+  beforeEach(() => {
+    testLunrSearchEngine = new LunrSearchEngine({ logger: getVoidLogger() });
+    jest.clearAllMocks();
+  });
+
+  it('test with stop words', async () => {
+    // Add another test case for builds-at-seek, really wondering why cannot reproduce
+    // const mockDocuments = [
+    //   {
+    //     title: 'discover-and-career-services',
+    //     text: 'discover-and-career-services',
+    //     location: 'test/location',
+    //   },
+    // ];
+    const mockDocuments = [
+      {
+        title: 'builds-at-seek',
+        text: 'builds-at-seek',
+        location: 'test/location',
+      },
+    ];
+
+    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
+
+    await TestPipeline.withSubject(indexer)
+      .withDocuments(mockDocuments)
+      .execute();
+
+    // const mockedSearchResult = await testLunrSearchEngine.query({
+    //   term: 'discover',
+    //   filters: {},
+    // });
+    const mockedSearchResult = await testLunrSearchEngine.query({
+      term: 'builds-at-seek',
+      filters: {},
+    });
+
+    // expect(mockedSearchResult).toMatchObject({
+    //   results: [
+    //     {
+    //       document: {
+    //         title: 'discover-and-career-services',
+    //         text: 'discover-and-career-services',
+    //         location: 'test/location',
+    //       },
+    //       rank: 1,
+    //     },
+    //   ],
+    //   nextPageCursor: undefined,
+    // });
+    expect(mockedSearchResult).toMatchObject({
+      results: [
+        {
+          document: {
+            title: 'builds-at-seek',
+            text: 'builds-at-seek',
+            location: 'test/location',
+          },
+          rank: 1,
+        },
+      ],
+      nextPageCursor: undefined,
+    });
+  });
+});
+
 describe('LunrSearchEngine', () => {
   let testLunrSearchEngine: SearchEngine;
 
