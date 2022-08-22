@@ -83,19 +83,11 @@ describe('stopword-testing', () => {
     jest.clearAllMocks();
   });
 
-  it('test with stop words', async () => {
-    // Add another test case for builds-at-seek, really wondering why cannot reproduce
-    // const mockDocuments = [
-    //   {
-    //     title: 'discover-and-career-services',
-    //     text: 'discover-and-career-services',
-    //     location: 'test/location',
-    //   },
-    // ];
+  it('test with stop word', async () => {
     const mockDocuments = [
       {
-        title: 'builds-at-seek',
-        text: 'builds-at-seek',
+        title: 'a home',
+        text: 'mary had a little lamb at home',
         location: 'test/location',
       },
     ];
@@ -106,34 +98,56 @@ describe('stopword-testing', () => {
       .withDocuments(mockDocuments)
       .execute();
 
-    // const mockedSearchResult = await testLunrSearchEngine.query({
-    //   term: 'discover',
-    //   filters: {},
-    // });
     const mockedSearchResult = await testLunrSearchEngine.query({
-      term: 'builds-at-seek',
-      filters: {},
+      term: 'mary',
+      filters: {
+        title: 'a home',
+      },
     });
 
-    // expect(mockedSearchResult).toMatchObject({
-    //   results: [
-    //     {
-    //       document: {
-    //         title: 'discover-and-career-services',
-    //         text: 'discover-and-career-services',
-    //         location: 'test/location',
-    //       },
-    //       rank: 1,
-    //     },
-    //   ],
-    //   nextPageCursor: undefined,
-    // });
     expect(mockedSearchResult).toMatchObject({
       results: [
         {
           document: {
-            title: 'builds-at-seek',
-            text: 'builds-at-seek',
+            title: 'a home',
+            text: 'mary had a little lamb at home',
+            location: 'test/location',
+          },
+          rank: 1,
+        },
+      ],
+      nextPageCursor: undefined,
+    });
+  });
+
+  it('test with stop word connected with dash', async () => {
+    const mockDocuments = [
+      {
+        title: 'a-home',
+        text: 'mary had a little lamb at home',
+        location: 'test/location',
+      },
+    ];
+
+    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
+
+    await TestPipeline.withSubject(indexer)
+      .withDocuments(mockDocuments)
+      .execute();
+
+    const mockedSearchResult = await testLunrSearchEngine.query({
+      term: 'mary',
+      filters: {
+        title: 'a-home',
+      },
+    });
+
+    expect(mockedSearchResult).toMatchObject({
+      results: [
+        {
+          document: {
+            title: 'a-home',
+            text: 'mary had a little lamb at home',
             location: 'test/location',
           },
           rank: 1,
