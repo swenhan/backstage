@@ -75,89 +75,6 @@ const getActualIndexer = (engine: SearchEngine, index: string) => {
   return engine.getIndexer(index);
 };
 
-describe('stopword-testing', () => {
-  let testLunrSearchEngine: SearchEngine;
-
-  beforeEach(() => {
-    testLunrSearchEngine = new LunrSearchEngine({ logger: getVoidLogger() });
-    jest.clearAllMocks();
-  });
-
-  it('test with stop word', async () => {
-    const mockDocuments = [
-      {
-        title: 'a home',
-        text: 'mary had a little lamb at home',
-        location: 'test/location',
-      },
-    ];
-
-    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
-
-    await TestPipeline.withSubject(indexer)
-      .withDocuments(mockDocuments)
-      .execute();
-
-    const mockedSearchResult = await testLunrSearchEngine.query({
-      term: 'mary',
-      filters: {
-        title: 'a home',
-      },
-    });
-
-    expect(mockedSearchResult).toMatchObject({
-      results: [
-        {
-          document: {
-            title: 'a home',
-            text: 'mary had a little lamb at home',
-            location: 'test/location',
-          },
-          rank: 1,
-        },
-      ],
-      nextPageCursor: undefined,
-    });
-  });
-
-  it('test with stop word connected with dash', async () => {
-    const mockDocuments = [
-      {
-        title: 'a-home',
-        text: 'mary had a little lamb at home',
-        location: 'test/location',
-      },
-    ];
-
-    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
-
-    await TestPipeline.withSubject(indexer)
-      .withDocuments(mockDocuments)
-      .execute();
-
-    const mockedSearchResult = await testLunrSearchEngine.query({
-      term: 'mary',
-      filters: {
-        title: 'a-home',
-      },
-    });
-
-    expect(mockedSearchResult).toMatchObject({
-      results: [
-        {
-          document: {
-            title: 'a-home',
-            text: 'mary had a little lamb at home',
-            location: 'test/location',
-          },
-          rank: 1,
-        },
-      ],
-      nextPageCursor: undefined,
-    });
-  });
-});
-
 describe('LunrSearchEngine', () => {
   let testLunrSearchEngine: SearchEngine;
 
@@ -1172,6 +1089,126 @@ describe('parseHighlightFields', () => {
     ).toEqual({
       foo: '<>abc</> <>def</>',
       bar: 'ghi <>jkl</>',
+    });
+  });
+});
+
+describe('stopword testing', () => {
+  let testLunrSearchEngine: SearchEngine;
+
+  beforeEach(() => {
+    testLunrSearchEngine = new LunrSearchEngine({ logger: getVoidLogger() });
+    jest.clearAllMocks();
+  });
+
+  it('test with stopword in title', async () => {
+    const mockDocuments = [
+      {
+        title: 'a home',
+        text: 'mary had a little lamb at home',
+        location: 'test/location',
+      },
+    ];
+
+    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
+
+    await TestPipeline.withSubject(indexer)
+      .withDocuments(mockDocuments)
+      .execute();
+
+    const mockedSearchResult = await testLunrSearchEngine.query({
+      term: 'mary',
+      filters: {
+        title: 'a home',
+      },
+    });
+
+    expect(mockedSearchResult).toMatchObject({
+      results: [
+        {
+          document: {
+            title: 'a home',
+            text: 'mary had a little lamb at home',
+            location: 'test/location',
+          },
+          rank: 1,
+        },
+      ],
+      nextPageCursor: undefined,
+    });
+  });
+
+  it('test with stopword connected with dash', async () => {
+    const mockDocuments = [
+      {
+        title: 'a-home',
+        text: 'mary had a little lamb at home',
+        location: 'test/location',
+      },
+    ];
+
+    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
+
+    await TestPipeline.withSubject(indexer)
+      .withDocuments(mockDocuments)
+      .execute();
+
+    const mockedSearchResult = await testLunrSearchEngine.query({
+      term: 'mary',
+      filters: {
+        title: 'a-home',
+      },
+    });
+
+    expect(mockedSearchResult).toMatchObject({
+      results: [
+        {
+          document: {
+            title: 'a-home',
+            text: 'mary had a little lamb at home',
+            location: 'test/location',
+          },
+          rank: 1,
+        },
+      ],
+      nextPageCursor: undefined,
+    });
+  });
+
+  it('test with only stop word in title', async () => {
+    const mockDocuments = [
+      {
+        title: 'a',
+        text: 'mary had a little lamb at home',
+        location: 'test/location',
+      },
+    ];
+
+    const indexer = await getActualIndexer(testLunrSearchEngine, 'test-index');
+
+    await TestPipeline.withSubject(indexer)
+      .withDocuments(mockDocuments)
+      .execute();
+
+    const mockedSearchResult = await testLunrSearchEngine.query({
+      term: 'mary',
+      filters: {
+        title: 'a',
+      },
+    });
+
+    expect(mockedSearchResult).toMatchObject({
+      results: [
+        {
+          document: {
+            title: 'a',
+            text: 'mary had a little lamb at home',
+            location: 'test/location',
+          },
+          rank: 1,
+        },
+      ],
+      nextPageCursor: undefined,
     });
   });
 });
